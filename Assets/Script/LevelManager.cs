@@ -5,10 +5,18 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour {
 
-    int NowState = 0;   //当前状态，不同的状态对应不同的操作
+    int NowState = 1;   //当前状态，不同的状态对应不同的操作
     int level = 0;      //关卡id
-    ArrayList Bag = new ArrayList();    //背包
 
+    //游戏状态
+    public enum LevelStateType
+    {
+        PlayAnimation,
+        Common
+    }
+    LevelStateType LevelState = LevelStateType.Common;
+
+    ArrayList Bag = new ArrayList();    //背包
     public GameObject CompleteBoard;
 
     private void Awake()
@@ -29,7 +37,7 @@ public class LevelManager : MonoBehaviour {
     //初始化当前状态
     void IntiManager()
     {
-        NowState = 0;
+        NowState = 1;
         Bag = new ArrayList();
         if (!int.TryParse(SceneManager.GetActiveScene().name, out level))
             Debug.Log("关卡名称错误：" + SceneManager.GetActiveScene().name);
@@ -63,5 +71,23 @@ public class LevelManager : MonoBehaviour {
     {
         GameObject cp = Instantiate(CompleteBoard);
         cp.transform.SetParent(transform.Find("/GameCanvas/UIlayer"), false);
+    }
+
+    public bool isPlayingAnimation()
+    {
+        if (LevelState == LevelStateType.PlayAnimation)
+            return true;
+        else
+            return false;
+    }
+
+    public LevelStateType GetLevelState()
+    {
+        return LevelState;
+    }
+
+    public void SetLevelState(LevelStateType _levelstate)
+    {
+        LevelState = _levelstate;
     }
 }
