@@ -16,7 +16,8 @@ public class LevelElement : MonoBehaviour {
     {
         None,
         Next,
-        Complete
+        Complete,
+        Fail
     }
 
     [Header("状态列表：")]
@@ -110,6 +111,10 @@ public class LevelElement : MonoBehaviour {
         else if (_do.action == StateAction.Complete)
         {
             levelManager.CompleteLevel();
+        }
+        else if (_do.action == StateAction.Fail)
+        {
+            levelManager.FailLevel();
         }
     }
 

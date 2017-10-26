@@ -17,7 +17,9 @@ public class LevelManager : MonoBehaviour {
     LevelStateType LevelState = LevelStateType.Common;
 
     ArrayList Bag = new ArrayList();    //背包
+
     public GameObject CompleteBoard;
+    public GameObject FailBoard;
 
     private void Awake()
     {
@@ -71,6 +73,16 @@ public class LevelManager : MonoBehaviour {
     {
         GameObject cp = Instantiate(CompleteBoard);
         cp.transform.SetParent(transform.Find("/GameCanvas/UIlayer"), false);
+
+        EventTriggerListener.Get(cp.transform.Find("RetryButton")).onClick = GameManager.ReloadNowLevel;
+    }
+
+    public void FailLevel()
+    {
+        GameObject fp = Instantiate(FailBoard);
+        fp.transform.SetParent(transform.Find("/GameCanvas/UIlayer"), false);
+
+        EventTriggerListener.Get(fp.transform.Find("RetryButton")).onClick = GameManager.ReloadNowLevel;
     }
 
     public bool isPlayingAnimation()
