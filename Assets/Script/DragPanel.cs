@@ -3,24 +3,46 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 
-public class DragPanel : MonoBehaviour, IPointerDownHandler, IDragHandler
+public class DragPanel : MonoBehaviour, IPointerDownHandler, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
-
     private Vector2 originalLocalPointerPosition;
     private Vector3 originalPanelLocalPosition;
     private RectTransform dragObject;
     private RectTransform dragArea;
+    private CanvasGroup group;
 
     void Awake()
     {
+        IntiElement();
+    }
+
+    //初始化当前状态
+    void IntiElement()
+    {
         dragObject = transform as RectTransform;
         dragArea = dragObject.parent as RectTransform;
+
+        //创建画布组
+        group = transform.GetComponent<CanvasGroup>();
+        if (group == null)
+            group = gameObject.AddComponent<CanvasGroup>();
     }
+
 
     public void OnPointerDown(PointerEventData data)
     {
         originalPanelLocalPosition = dragObject.localPosition;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(dragArea, data.position, data.pressEventCamera, out originalLocalPointerPosition);
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        group.blocksRaycasts = false;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        group.blocksRaycasts = true;
     }
 
     public void OnDrag(PointerEventData data)
@@ -31,11 +53,11 @@ public class DragPanel : MonoBehaviour, IPointerDownHandler, IDragHandler
             return;
         }
 
+        //Debug.Log("pointerDrag: " + data.pointerDrag.name);
 
         Vector2 localPointerPosition;
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(dragArea, data.position, data.pressEventCamera, out localPointerPosition))
         {
-            Debug.Log(localPointerPosition);
             Vector3 offsetToOriginal = localPointerPosition - originalLocalPointerPosition;
             dragObject.localPosition = originalPanelLocalPosition + offsetToOriginal;
         }
@@ -56,4 +78,5 @@ public class DragPanel : MonoBehaviour, IPointerDownHandler, IDragHandler
 
         dragObject.localPosition = pos;
     }
+
 }

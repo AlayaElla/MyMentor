@@ -27,11 +27,15 @@ public class LevelElement : MonoBehaviour {
     public Animator ani;
 
     // Use this for initialization
-    void Start () {
+    virtual public void Awake () {
         IntiElement();
+    }
+
+    void Start()
+    {
         EventTriggerListener.Get(transform).onClick = CheckOnClick;
     }
-	
+
 	// Update is called once per frame
 	void Update () {
 		
@@ -67,17 +71,17 @@ public class LevelElement : MonoBehaviour {
         Debug.LogFormat("物件<color=blue> {0} </color>初始化完成！", transform.name);
     }
 
-    void PlayAnimation()
+    private void PlayAnimation()
     {
         ani.Play(GetComponent<Animation>().name);
     }
 
-    void CheckOnClick(GameObject go)
+    private void CheckOnClick(GameObject go)
     {
         //如果正在播放动画则不响应点击
-        if (levelManager.isPlayingAnimation()) return;
+        if (GetLevelManager().isPlayingAnimation()) return;
 
-        int stateID = levelManager.GetNowState();
+        int stateID = GetLevelManager().GetNowState();
         StateDo _do = GetStateDo(stateID);
         if (_do.StateID == stateID || _do.StateID == 0)
         {
@@ -85,12 +89,12 @@ public class LevelElement : MonoBehaviour {
             if (_do.animation != null)
             {
                 ani.Play(_do.animation.name, 0, 0);
-                levelManager.SetLevelState(LevelManager.LevelStateType.PlayAnimation);
+                GetLevelManager().SetLevelState(LevelManager.LevelStateType.PlayAnimation);
 
                 //等待动画播放完执行下一步判断
                 TimeTool.SetWaitTime(_do.animation.length, gameObject, () =>
                   {
-                      levelManager.SetLevelState(LevelManager.LevelStateType.Common);
+                      GetLevelManager().SetLevelState(LevelManager.LevelStateType.Common);
                       CheckAction(_do);
                   });
             }
@@ -102,7 +106,7 @@ public class LevelElement : MonoBehaviour {
     }
 
     //确定是否下一步
-    void CheckAction(StateDo _do)
+    public void CheckAction(StateDo _do)
     {
         if (_do.action == StateAction.Next)
         {
@@ -118,7 +122,7 @@ public class LevelElement : MonoBehaviour {
         }
     }
 
-    StateDo GetStateDo(int stateID)
+    public StateDo GetStateDo(int stateID)
     {
         StateDo common = new StateDo();
 
@@ -138,5 +142,10 @@ public class LevelElement : MonoBehaviour {
             Debug.LogFormat("找不到对应<color=red> {0} </color>的动作！", stateID);
             return common;
         }
+    }
+
+    public LevelManager GetLevelManager()
+    {
+        return levelManager;
     }
 }
