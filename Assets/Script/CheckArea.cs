@@ -4,21 +4,38 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine;
 
-public class CheckArea : LevelElement, IDropHandler, IPointerEnterHandler, IPointerExitHandler
+public class CheckArea : ElementBase, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    private RectTransform Area;
-    private CanvasGroup group;
-    public CheckType checkType;
     public enum CheckType
     {
         OnDrop,
         OnEnter,
         None
     }
-    float prealpha = 1f;
 
-    void Start()
+    private RectTransform Area;
+    private CanvasGroup group;
+    float prealpha = 1f;
+    [Header("触发检查的方式：")]
+    public CheckType checkType;
+
+    [System.Serializable]
+    public struct StateDo
     {
+        public int StateID;
+        public string DragName;
+        public AnimationClip[] ActionList;
+        public StateAction NextDo;
+
+    }
+
+    [Header("状态列表：")]
+    public StateDo[] DoList;
+
+    // Use this for initialization
+    override public void Awake()
+    {
+        IntiElement();
         IntiArea();
     }
 	
@@ -31,8 +48,6 @@ public class CheckArea : LevelElement, IDropHandler, IPointerEnterHandler, IPoin
         group = transform.GetComponent<CanvasGroup>();
         if (group == null)
             group = gameObject.AddComponent<CanvasGroup>();
-
-        Debug.Log("chush");
     }
 
     public void OnDrop(PointerEventData data)
@@ -40,6 +55,7 @@ public class CheckArea : LevelElement, IDropHandler, IPointerEnterHandler, IPoin
         if (checkType != CheckType.OnDrop)
             return;
 
+        group.alpha = prealpha;
         MoveToCenter(data);
     }
 
@@ -53,9 +69,9 @@ public class CheckArea : LevelElement, IDropHandler, IPointerEnterHandler, IPoin
         {
             prealpha = group.alpha;
             if (group.alpha > 0.5f)
-                group.alpha = group.alpha / 2;
+                group.alpha = group.alpha / 1.5f;
             else
-                group.alpha = group.alpha * 2;
+                group.alpha = group.alpha * 1.5f;
         }
 
         if (checkType != CheckType.OnEnter)
@@ -82,8 +98,9 @@ public class CheckArea : LevelElement, IDropHandler, IPointerEnterHandler, IPoin
         if (originalObj == null)
             return null;
 
-        var dragMe = originalObj.GetComponent<DragPanel>();
-        if (dragMe == null)
+        var dragMe = originalObj.GetComponent<DragElement>();
+        var dragMeItem = originalObj.GetComponent<ItemDragEffect>();
+        if (dragMe == null && dragMeItem == null)
             return null;
 
         var srcImage = originalObj.GetComponent<Image>();
@@ -100,40 +117,119 @@ public class CheckArea : LevelElement, IDropHandler, IPointerEnterHandler, IPoin
     void MoveToCenter(PointerEventData data)
     {
         GameObject dropObject = GetDropObject(data);
-        if (dropObject != null)
-        {
-            data.pointerDrag = null;
-            dropObject.GetComponent<CanvasGroup>().blocksRaycasts = false;
-            MoveToCenter effect = dropObject.AddComponent<MoveToCenter>();
-            effect.SetPos(Area.position);
+        if (dropObject == null)
+            return;
 
-            CheckOnMoveIn();
+        ArrayList stateList = GetStateDo(GetLevelManager().GetNowState());
+        ArrayList donelist = new ArrayList();
+        //遍历执行所有符合条件的动作
+        foreach (StateDo _do in stateList)
+        {
+            //跳过已经执行过的物体
+            if (donelist.Contains(_do.DragName)) break;
+            donelist.Add(_do.DragName);
+
+            if (_do.DragName.CompareTo(dropObject.name) == 0)
+            {
+                float maxTime = -1;
+                //执行这个State下的多个动作
+                foreach (AnimationClip action in _do.ActionList)
+                {
+                    if (action != null)
+                        maxTime = Mathf.Max(maxTime, action.length);
+
+                    data.pointerDrag = null;
+                    dropObject.GetComponent<CanvasGroup>().blocksRaycasts = false;
+                    MoveToCenter effect = GetMoveToCenter(dropObject);
+                    effect.SetPos(Area.position);
+
+                    PlayAnimation(action);
+                }
+                WaitForCheckAction(maxTime, _do);
+            }
         }
     }
 
-    private void CheckOnMoveIn()
+    private void PlayAnimation(AnimationClip clip)
     {
-        int stateID = GetLevelManager().GetNowState();
-        StateDo _do = GetStateDo(stateID);
-        if (_do.StateID == stateID || _do.StateID == 0)
+        //执行动作
+        if (clip != null)
         {
-            //执行动作
-            if (_do.animation != null)
+            string rootname = clip.name.Split('_')[0];
+            if (ani == null)
             {
-                ani.Play(_do.animation.name, 0, 0);
-                GetLevelManager().SetLevelState(LevelManager.LevelStateType.PlayAnimation);
-
-                //等待动画播放完执行下一步判断
-                TimeTool.SetWaitTime(_do.animation.length, gameObject, () =>
-                {
-                    GetLevelManager().SetLevelState(LevelManager.LevelStateType.Common);
-                    CheckAction(_do);
-                });
+                Debug.LogFormat("找不到 {0} 的 {1} 动作1", rootname, clip.name);
+                return;
             }
-            else
+            ani = transform.parent.Find(rootname).GetComponent<Animator>();
+            if (ani == null)
             {
-                CheckAction(_do);
+                Debug.LogFormat("找不到 {0} 的 {1} 动作1", rootname, clip.name);
+                return;
             }
+            ani.Play(clip.name, 0, 0);
+            GetLevelManager().SetLevelState(LevelManager.LevelStateType.PlayAnimation);
         }
+    }
+
+    private void WaitForCheckAction(float time, StateDo _do)
+    {
+        if (time > 0)
+        {
+            //等待动画播放完执行下一步判断
+            TimeTool.SetWaitTime(time, gameObject, () =>
+            {
+                GetLevelManager().SetLevelState(LevelManager.LevelStateType.Common);
+                CheckAction(_do.NextDo);
+            });
+        }
+        else
+        {
+            CheckAction(_do.NextDo);
+        }
+    }
+
+    ////查找动作列表中对应的动作
+    //private StateDo GetStateDo(int stateID)
+    //{
+    //    StateDo common = new StateDo();
+
+    //    //查找对应ID的动作
+    //    foreach (StateDo _s in DoList)
+    //    {
+    //        if (_s.StateID == 0)
+    //            common = _s;
+    //        if (_s.StateID == stateID)
+    //            return _s;
+    //    }
+    //    return common;
+    //}
+
+    //查找动作列表中对应的动作
+    private ArrayList GetStateDo(int stateID)
+    {
+        ArrayList commonList = new ArrayList();
+        ArrayList stateList = new ArrayList();
+
+        //查找对应ID的动作
+        foreach (StateDo _s in DoList)
+        {
+            if (_s.StateID == 0)
+                commonList.Add(_s);
+            if (_s.StateID == stateID)
+                stateList.Add(_s);
+        }
+        if (stateList.Count > 0)
+            return stateList;
+        else
+            return commonList;
+    }
+
+    MoveToCenter GetMoveToCenter(GameObject dropObject)
+    {
+        MoveToCenter moveeffect = dropObject.gameObject.GetComponent<MoveToCenter>();
+        if (moveeffect == null)
+            moveeffect = dropObject.gameObject.AddComponent<MoveToCenter>();
+        return moveeffect;
     }
 }

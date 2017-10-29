@@ -3,13 +3,15 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 
-public class DragPanel : MonoBehaviour, IPointerDownHandler, IDragHandler, IBeginDragHandler, IEndDragHandler
+public class DragElement : MonoBehaviour, IPointerDownHandler, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
     private Vector2 originalLocalPointerPosition;
     private Vector3 originalPanelLocalPosition;
     private RectTransform dragObject;
     private RectTransform dragArea;
     private CanvasGroup group;
+
+    public bool ToCenter = true;
 
     void Awake()
     {
@@ -31,8 +33,15 @@ public class DragPanel : MonoBehaviour, IPointerDownHandler, IDragHandler, IBegi
 
     public void OnPointerDown(PointerEventData data)
     {
-        originalPanelLocalPosition = dragObject.localPosition;
+        RemoveMoveCenterEffect();
+
         RectTransformUtility.ScreenPointToLocalPointInRectangle(dragArea, data.position, data.pressEventCamera, out originalLocalPointerPosition);
+        if (ToCenter)
+        {
+            AddMoveCenterEffect();
+        }
+        else
+            originalPanelLocalPosition = dragObject.localPosition;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -52,8 +61,6 @@ public class DragPanel : MonoBehaviour, IPointerDownHandler, IDragHandler, IBegi
             Debug.Log("找不到拖动物体，或者拖动区域！");
             return;
         }
-
-        //Debug.Log("pointerDrag: " + data.pointerDrag.name);
 
         Vector2 localPointerPosition;
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(dragArea, data.position, data.pressEventCamera, out localPointerPosition))
@@ -79,4 +86,25 @@ public class DragPanel : MonoBehaviour, IPointerDownHandler, IDragHandler, IBegi
         dragObject.localPosition = pos;
     }
 
+    void AddMoveCenterEffect()
+    {
+        MoveToCenter moveeffect = GetMoveToCenter(dragObject.gameObject);
+        moveeffect.SetSpeed(6.0f);
+        moveeffect.SetLocalPos(originalLocalPointerPosition);
+        originalPanelLocalPosition = originalLocalPointerPosition;
+    }
+
+    void RemoveMoveCenterEffect()
+    {
+        MoveToCenter movescript = GetComponent<MoveToCenter>();
+        if (movescript != null) Destroy(movescript);
+    }
+
+    MoveToCenter GetMoveToCenter(GameObject dropObject)
+    {
+        MoveToCenter moveeffect = dropObject.gameObject.GetComponent<MoveToCenter>();
+        if (moveeffect == null)
+            moveeffect = dropObject.gameObject.AddComponent<MoveToCenter>();
+        return moveeffect;
+    }
 }
