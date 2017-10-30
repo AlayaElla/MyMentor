@@ -182,22 +182,6 @@ public class CheckArea : ElementBase, IDropHandler, IPointerEnterHandler, IPoint
         }
     }
 
-    ////查找动作列表中对应的动作
-    //private StateDo GetStateDo(int stateID)
-    //{
-    //    StateDo common = new StateDo();
-
-    //    //查找对应ID的动作
-    //    foreach (StateDo _s in DoList)
-    //    {
-    //        if (_s.StateID == 0)
-    //            common = _s;
-    //        if (_s.StateID == stateID)
-    //            return _s;
-    //    }
-    //    return common;
-    //}
-
     //查找动作列表中对应的动作
     private ArrayList GetStateDo(int stateID)
     {
