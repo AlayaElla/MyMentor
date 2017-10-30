@@ -13,8 +13,6 @@ public class ElementBase : MonoBehaviour {
         Complete,
         Fail
     }
-    [HideInInspector]
-    public Animator ani;
 
     // Use this for initialization
     virtual public void Awake()
@@ -56,5 +54,23 @@ public class ElementBase : MonoBehaviour {
     public LevelManager GetLevelManager()
     {
         return levelManager;
+    }
+
+    public Animator GetAnimator(string rootname)
+    {
+        RectTransform t = transform.parent.Find(rootname) as RectTransform;
+        if (t == null)
+        {
+            Debug.LogFormat("找不到<color=red> {0} </color>,请检查动画名称是否和物件对应!", rootname);
+            return null;
+        }
+
+        Animator ani = t.GetComponent<Animator>();
+        if (ani == null)
+        {
+            Debug.LogFormat("找不到 {0} 的动画管理器,请检查动画名称是否和物件对应!", rootname);
+            return null;
+        }
+        return ani;
     }
 }

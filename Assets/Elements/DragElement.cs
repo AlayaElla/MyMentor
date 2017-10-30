@@ -46,6 +46,7 @@ public class DragElement : MonoBehaviour, IPointerDownHandler, IDragHandler, IBe
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        RemoveMoveCenterEffect();
         group.blocksRaycasts = false;
     }
 

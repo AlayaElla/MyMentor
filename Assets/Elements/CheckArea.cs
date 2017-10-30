@@ -31,6 +31,7 @@ public class CheckArea : ElementBase, IDropHandler, IPointerEnterHandler, IPoint
 
     [Header("状态列表：")]
     public StateDo[] DoList;
+    Animator ani;
 
     // Use this for initialization
     override public void Awake()
@@ -156,17 +157,9 @@ public class CheckArea : ElementBase, IDropHandler, IPointerEnterHandler, IPoint
         if (clip != null)
         {
             string rootname = clip.name.Split('_')[0];
-            if (ani == null)
-            {
-                Debug.LogFormat("找不到 {0} 的 {1} 动作1", rootname, clip.name);
-                return;
-            }
-            ani = transform.parent.Find(rootname).GetComponent<Animator>();
-            if (ani == null)
-            {
-                Debug.LogFormat("找不到 {0} 的 {1} 动作1", rootname, clip.name);
-                return;
-            }
+            ani = GetAnimator(rootname);
+            if (ani == null) return;
+
             ani.Play(clip.name, 0, 0);
             GetLevelManager().SetLevelState(LevelManager.LevelStateType.PlayAnimation);
         }

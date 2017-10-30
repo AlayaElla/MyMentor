@@ -55,6 +55,7 @@ public class ItemDragEffect : MonoBehaviour, IPointerDownHandler, IPointerUpHand
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        RemoveMoveCenterEffect();
         group.blocksRaycasts = false;
     }
 
