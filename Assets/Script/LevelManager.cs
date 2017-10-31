@@ -68,7 +68,7 @@ public class LevelManager : MonoBehaviour {
 
     public int AddNowState()
     {
-        Debug.Log("增加状态: " + NowState);
+        Debug.Log("当前状态: " + (NowState + 1));
         return NowState++;
     }
 
@@ -78,6 +78,7 @@ public class LevelManager : MonoBehaviour {
         cp.transform.SetParent(transform.Find("/GameCanvas/UIlayer"), false);
 
         EventTriggerListener.Get(cp.transform.Find("RetryButton")).onClick = GameManager.ReloadNowLevel;
+        EventTriggerListener.Get(cp.transform.Find("NextButton")).onClick = GameManager.NextLevel;   
     }
 
     public void FailLevel()

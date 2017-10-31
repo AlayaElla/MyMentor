@@ -58,7 +58,9 @@ public class ElementBase : MonoBehaviour {
 
     public Animator GetAnimator(string rootname)
     {
-        RectTransform t = transform.parent.Find(rootname) as RectTransform;
+        Transform t = transform.parent.Find(rootname);
+        if (t == null && transform.parent.name.CompareTo(rootname) == 0)
+            t = transform.parent;
         if (t == null)
         {
             Debug.LogFormat("找不到<color=red> {0} </color>,请检查动画名称是否和物件对应!", rootname);
