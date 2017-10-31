@@ -12,7 +12,6 @@ public class ClickElement : ElementBase
         public StateAction NextDo;
     }
 
-    [Header("状态列表：")]
     public StateDo[] DoList;
     Animator ani;
 
