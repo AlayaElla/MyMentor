@@ -16,7 +16,6 @@ public class EventArea : ElementBase, IDropHandler, IPointerEnterHandler, IPoint
     private RectTransform Area;
     private CanvasGroup group;
     float prealpha = 1f;
-    [Header("触发检查的方式：")]
     public CheckType checkType;
 
     [System.Serializable]
@@ -29,7 +28,6 @@ public class EventArea : ElementBase, IDropHandler, IPointerEnterHandler, IPoint
 
     }
 
-    [Header("状态列表：")]
     public StateDo[] DoList;
     Animator ani;
 
