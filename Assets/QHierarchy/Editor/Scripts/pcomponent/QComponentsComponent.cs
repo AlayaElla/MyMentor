@@ -48,6 +48,19 @@ namespace qtools.qhierarchy.pcomponent
         public override void layout(GameObject gameObject, QObjectList objectList, ref Rect curRect)
         {
             components = gameObject.GetComponents<Component>();
+
+            //临时添加过滤项，只显示关卡物件
+            //              by:AlayaElla
+            List<Component> newcomonent = new List<Component>();
+            foreach (Component component in components)
+            {
+                if (component is ClickElement || component is DragElement || component is EventArea || component is ItemElement || component is Transform)
+                    newcomonent.Add(component);
+            }
+            components = new Component[newcomonent.Count];
+            newcomonent.CopyTo(components);
+            //修改结束
+
             int totalWidth = 2 + 16 * (components.Length - 1);
             curRect.x -= totalWidth;
             curRect.width = totalWidth;

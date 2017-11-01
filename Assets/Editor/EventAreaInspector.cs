@@ -76,10 +76,8 @@ public class EventAreaInspector : Editor{
             EditorGUI.indentLevel = 1;
             SerializedProperty actinlist = statedo.FindPropertyRelative("ActionList");
             showActionList[i] = EditorGUILayout.Foldout(showActionList[i], "  动画列表: " + actinlist.arraySize + "个", true);
-
             if (showActionList[i])
             {
-                //显示动画列表
                 for (int j = 0; j < actinlist.arraySize; j++)
                 {
                     EditorGUILayout.BeginHorizontal();
@@ -101,17 +99,18 @@ public class EventAreaInspector : Editor{
                 }
                 //添加动画按钮
                 EditorGUILayout.BeginHorizontal();
-                GUILayout.Label("", GUILayout.Width(170));
-                if (GUILayout.Button(insertAniContent, EditorStyles.miniButton))
+                GUILayout.Label("");
+                if (GUILayout.Button(insertAniContent, EditorStyles.miniButton, GUILayout.MinWidth(80f), GUILayout.MaxWidth(200f)))
                 {
                     actinlist.InsertArrayElementAtIndex(actinlist.arraySize);
                     SaveProperties();
                     return;
                 }
-                GUILayout.Label("", GUILayout.Width(170));
+                GUILayout.Label("");
                 EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndFadeGroup();
             }
-            //EditorGUILayout.PropertyField(statedo.FindPropertyRelative("ActionList"), true);
+
             EditorGUILayout.EndVertical();
         }
         if (GUILayout.Button(insertContent))

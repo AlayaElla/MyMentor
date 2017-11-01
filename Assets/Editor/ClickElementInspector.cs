@@ -12,6 +12,7 @@ public class ClickElementInspector : Editor
     private SerializedObject element;
     private SerializedProperty dolist;
 
+    private Transform transform;
     private bool[] showActionList;
 
     void OnEnable()
@@ -19,6 +20,8 @@ public class ClickElementInspector : Editor
         //获取当前编辑自定义Inspector的对象
         element = new SerializedObject(target);
         dolist = element.FindProperty("DoList");
+        ClickElement _target = (ClickElement)target;
+        transform = _target.transform;
         showActionList = new bool[dolist.arraySize];
     }
 
@@ -57,7 +60,6 @@ public class ClickElementInspector : Editor
             EditorGUI.indentLevel = 1;
             SerializedProperty actinlist = statedo.FindPropertyRelative("ActionList");
             showActionList[i] = EditorGUILayout.Foldout(showActionList[i], "  动画列表: " + actinlist.arraySize + "个", true);
-
             if (showActionList[i])
             {
                 for (int j = 0; j < actinlist.arraySize; j++)
@@ -72,19 +74,26 @@ public class ClickElementInspector : Editor
                         return;
                     }
                     EditorGUILayout.EndHorizontal();
+                    //检查是否出错
+                    if (clip.objectReferenceValue != null)
+                    {
+                        string rootname = clip.objectReferenceValue.name.Split('_')[0];
+                        GetAnimator(rootname);
+                    }
                 }
+                //添加动画按钮
                 EditorGUILayout.BeginHorizontal();
-                GUILayout.Label("", GUILayout.Width(170));
-                if (GUILayout.Button(insertAniContent, EditorStyles.miniButton))
+                GUILayout.Label("");
+                if (GUILayout.Button(insertAniContent, EditorStyles.miniButton, GUILayout.MinWidth(80f), GUILayout.MaxWidth(200f)))
                 {
                     actinlist.InsertArrayElementAtIndex(actinlist.arraySize);
                     SaveProperties();
                     return;
                 }
-                GUILayout.Label("", GUILayout.Width(170));
+                GUILayout.Label("");
                 EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndFadeGroup();
             }
-            //EditorGUILayout.PropertyField(statedo.FindPropertyRelative("ActionList"), true);
             EditorGUILayout.EndVertical();
         }
         if (GUILayout.Button(insertContent))
@@ -110,5 +119,26 @@ public class ClickElementInspector : Editor
         {
             showActionList[i] = oldlist[i];
         }
+    }
+
+    public bool GetAnimator(string rootname)
+    {
+        bool iserror = false;
+        Transform t = transform.parent.Find(rootname);
+        if (t == null && transform.parent.name.CompareTo(rootname) == 0)
+            t = transform.parent;
+        if (t == null)
+        {
+            EditorGUILayout.HelpBox("找不到 " + rootname + " ,请检查动画名称是否和物件对应!", MessageType.Error);
+            return true;
+        }
+
+        Animator ani = t.GetComponent<Animator>();
+        if (ani == null)
+        {
+            EditorGUILayout.HelpBox("找不到 " + rootname + " 的动画管理器,请检查动画名称是否和物件对应!", MessageType.Error);
+            return true;
+        }
+        return iserror;
     }
 }
