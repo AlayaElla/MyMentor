@@ -96,6 +96,7 @@ public class ClickElementInspector : Editor
             }
             EditorGUILayout.EndVertical();
         }
+        EditorGUILayout.Space();
         if (GUILayout.Button(insertContent))
         {
             dolist.InsertArrayElementAtIndex(dolist.arraySize);

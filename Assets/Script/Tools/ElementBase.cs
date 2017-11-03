@@ -63,14 +63,14 @@ public class ElementBase : MonoBehaviour {
             t = transform.parent;
         if (t == null)
         {
-            Debug.LogFormat("找不到<color=red> {0} </color>,请检查动画名称是否和物件对应!", rootname);
+            Debug.LogFormat(transform.name + " 找不到<color=red> {0} </color>,请检查动画名称是否和物件对应!", rootname);
             return null;
         }
 
         Animator ani = t.GetComponent<Animator>();
         if (ani == null)
         {
-            Debug.LogFormat("找不到 {0} 的动画管理器,请检查动画名称是否和物件对应!", rootname);
+            Debug.LogFormat(transform.name + " 找不到<color=red> {0} </color>的动画管理器,请检查动画名称是否和物件对应!", rootname);
             return null;
         }
         return ani;
