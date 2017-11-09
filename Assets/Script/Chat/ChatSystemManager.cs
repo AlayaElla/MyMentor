@@ -13,7 +13,7 @@ public class ChatSystemManager : MonoBehaviour {
     ChatSystemTool chatmanager;
     ArrayList StoryList = new ArrayList();
 
-    public void StartStory()
+    public void StartStory(System.Action callback)
     {
         if (StoryList.Count == 0 || StoryList == null)
         {
@@ -29,18 +29,19 @@ public class ChatSystemManager : MonoBehaviour {
             newobj.AddComponent<AudioSource>();
         }
         chatmanager.PushStoryList(StoryList);
-        string storyname = (string)StoryList[0];
+        chatmanager.SetCallBack(callback);
 
+        string storyname = (string)StoryList[0];
         Loading.GetInstance().LoadingStoryScene(storyname, () =>
         {
             chatmanager.LoadChatStory(storyname);
         });
     }
 
-    public void StartStory(string storyname)
+    public void StartStory(string storyname, System.Action callback)
     {
         AddStroyName(storyname);
-        StartStory();
+        StartStory(callback);
     }
 
     void AddStroyName(string storyname)

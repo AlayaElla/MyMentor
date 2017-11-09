@@ -62,6 +62,7 @@ public class ChatSystemTool : MonoBehaviour {
     ArrayList StoryList;
     string storyName = "";
     string lastWords = "";  //用于保存上一个动作时说话的台词，在点击时在lastword中增加当前语句，来达到点击快速完成当前对话的功能。啊，这个方法我知道有点坑!
+    System.Action CallBack;
 
     void Awake()
     {
@@ -207,6 +208,9 @@ public class ChatSystemTool : MonoBehaviour {
                 {
                     Destroy(StoryBoardLayer.gameObject);
                     Destroy(this.gameObject);
+
+                    //执行回调
+                    CallBack();
                 });
             });
     }
@@ -1956,5 +1960,10 @@ public class ChatSystemTool : MonoBehaviour {
             }
         }
         EndChatLayer();
+    }
+
+    public void SetCallBack(System.Action action)
+    {
+        CallBack = action;
     }
 }

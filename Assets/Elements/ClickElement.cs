@@ -26,7 +26,7 @@ public class ClickElement : ElementBase
     private void CheckOnClick(GameObject go)
     {
         //如果正在播放动画则不响应点击
-        if (GetLevelManager().isPlayingAnimation()) return;
+        if (!GetLevelManager().isCommonState()) return;
 
         int stateID = GetLevelManager().GetNowState();
         StateDo _do = GetStateDo(stateID);

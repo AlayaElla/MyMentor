@@ -12,11 +12,12 @@ public class LevelManager : MonoBehaviour {
     public enum LevelStateType
     {
         PlayAnimation,
+        PlayStory,
         Common
     }
     LevelStateType LevelState = LevelStateType.Common;
 
-    ArrayList Bag = new ArrayList();    //背包
+    ArrayList StoryElements = new ArrayList();    //故事管理器
 
     public GameObject CompleteBoard;
     public GameObject FailBoard;
@@ -29,7 +30,7 @@ public class LevelManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-
+        CheckStoryElement();
     }
 	
 	// Update is called once per frame
@@ -41,24 +42,11 @@ public class LevelManager : MonoBehaviour {
     void IntiManager()
     {
         NowState = 1;
-        Bag = new ArrayList();
         BagUI = transform.Find("/GameCanvas/UIlayer/bagUI") as RectTransform;
 
         if (!int.TryParse(SceneManager.GetActiveScene().name, out level))
             Debug.Log("关卡名称错误：" + SceneManager.GetActiveScene().name);
         Debug.LogFormat("初始化关卡<color=green> {0} </color>成功！", level);  
-    }
-
-    void AddItemToBag(int id)
-    {
-        if (!Bag.Contains(id))
-        {
-            Bag.Add(id);
-        }
-        else
-        {
-            Debug.Log("已经包含了这个道具: " + id);
-        }
     }
 
     public int GetNowState()
@@ -69,7 +57,9 @@ public class LevelManager : MonoBehaviour {
     public int AddNowState()
     {
         Debug.Log("当前状态: " + (NowState + 1));
-        return NowState++;
+        NowState++;
+        CheckStoryElement();
+        return NowState;
     }
 
     public void CompleteLevel()
@@ -88,9 +78,9 @@ public class LevelManager : MonoBehaviour {
         EventTriggerListener.Get(fp.transform.Find("RetryButton")).onClick = GameManager.ReloadNowLevel;
     }
 
-    public bool isPlayingAnimation()
+    public bool isCommonState()
     {
-        if (LevelState == LevelStateType.PlayAnimation)
+        if (LevelState == LevelStateType.Common)
             return true;
         else
             return false;
@@ -125,6 +115,31 @@ public class LevelManager : MonoBehaviour {
         return pos;
     }
 
+    //添加故事管理器
+    public void AddStoryElement(StoryElement element)
+    {
+        if (!StoryElements.Contains(element))
+        {
+            StoryElements.Add(element);
+            Debug.Log("已添加故事管理器。 " + element.transform);
+        }
+        else
+        {
+            Debug.Log("已经包含了这个故事管理器！ " + element.transform);
+        }
+    }
+
+    //检查故事管理器
+    void CheckStoryElement()
+    {
+        foreach (StoryElement element in StoryElements)
+        {
+            bool ishit = element.CheckDoList();
+
+            if (ishit)
+                break;
+        }
+    }
 
     public LevelStateType GetLevelState()
     {
