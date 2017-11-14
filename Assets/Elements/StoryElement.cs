@@ -44,12 +44,20 @@ public class StoryElement : ElementBase
 
         //播放故事
         GetLevelManager().SetLevelState(LevelManager.LevelStateType.PlayStory);
-        manager.StartStory(_do.Story, ()=> {
-            GetLevelManager().SetLevelState(LevelManager.LevelStateType.Common);
-            CheckAction(_do.NextDo);
-        });
-
-        return true;
+        if (manager != null)
+        {
+            manager.StartStory(_do.Story, () =>
+            {
+                GetLevelManager().SetLevelState(LevelManager.LevelStateType.Common);
+                CheckAction(_do.NextDo);
+            });
+            return true;
+        }
+        else
+        {
+            Debug.Log("找不到故事管理器,请检查！");
+            return false;
+        }
     }
 
 
