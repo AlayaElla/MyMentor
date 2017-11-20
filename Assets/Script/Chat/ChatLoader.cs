@@ -217,6 +217,12 @@ public class ChatLoader{
                                 action.SkipType = ChatAction.SKIPTYPE.CLICK;
                             else if (parameters[2] == "sametime")
                                 action.SkipType = ChatAction.SKIPTYPE.SAMETIME;
+                            else
+                            {
+                                action.Parameter = new string[2];
+                                action.Parameter[0] = parameters[1];
+                                action.Parameter[1] = parameters[2];
+                            }
                         }
                     }
 

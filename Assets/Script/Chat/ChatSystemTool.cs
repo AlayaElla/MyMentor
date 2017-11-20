@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -53,6 +54,8 @@ public class ChatSystemTool : MonoBehaviour {
     RectTransform CharacterLayer;
     //RectTransform MaskLayer;
     RectTransform ClickLayer;
+    RectTransform SelectionLayer;
+    GameObject SelectionPrefab;
     Button btn_Skip;
     ChatBoard TextBoardLayer;
     Dictionary<string, RectTransform> CharacterRects;
@@ -63,6 +66,10 @@ public class ChatSystemTool : MonoBehaviour {
     string storyName = "";
     string lastWords = "";  //用于保存上一个动作时说话的台词，在点击时在lastword中增加当前语句，来达到点击快速完成当前对话的功能。啊，这个方法我知道有点坑!
     System.Action CallBack;
+
+    //对话状态
+    bool IsSelection = false;
+    ArrayList FlagList;
 
     void Awake()
     {
@@ -143,6 +150,8 @@ public class ChatSystemTool : MonoBehaviour {
         StoryBoardLayer = StoryLayerObj.GetComponent<RectTransform>();
         //MaskLayer = StoryBoardLayer.Find("Mask").GetComponent<RectTransform>();
         ClickLayer = StoryBoardLayer.Find("clickLayer").GetComponent<RectTransform>();
+        SelectionLayer = StoryBoardLayer.Find("SelectionLayer").GetComponent<RectTransform>();
+        SelectionPrefab= Resources.Load<GameObject>("Prefab/Chat/Selection");
         btn_Skip = StoryBoardLayer.Find("skip").GetComponent<Button>();
         BGLayer1 = StoryBoardLayer.Find("BG1").GetComponent<RectTransform>();
         BGLayer2 = StoryBoardLayer.Find("BG2").GetComponent<RectTransform>();
@@ -173,6 +182,9 @@ public class ChatSystemTool : MonoBehaviour {
 
         TextBoardLayer.NameText.text = "";
         TextBoardLayer.WordsText.text = "";
+
+        IsSelection = false;
+        FlagList = new ArrayList();
 
         //BGLayer1.GetComponent<Image>().color = Color.clear;
         BGLayer2.GetComponent<Image>().color = Color.clear;
@@ -1039,8 +1051,58 @@ public class ChatSystemTool : MonoBehaviour {
                 DoingAction(NowStroyActionBox.NowIndex);
                 break;
             case "loadstory":
-                SetActionState(ChatAction.NOWSTATE.DOING, index);
+                SetActionState(ChatAction.NOWSTATE.DONE, index);
                 ChangeStory(action.Parameter[0]);
+                break;
+            case "changescene":
+                SetActionState(ChatAction.NOWSTATE.DONE, index);
+                SceneManager.LoadScene(action.Parameter[0]);
+                break;
+            case "selection":
+                SetActionState(ChatAction.NOWSTATE.DONE, index);
+                SetIsSelection(true);
+                SelectionLayer.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
+                RectTransform selction = Instantiate(SelectionPrefab,SelectionLayer).GetComponent<RectTransform>();
+                SetSelectionWindow(action, selction);
+
+                ChatAction.StoryAction nextaction = (ChatAction.StoryAction)NowStroyActionBox.ActionList[index+1];
+                if (nextaction.Command.CompareTo("selection") == 0)
+                {
+                    SetActionIndex(index + 1);
+                    DoingAction(NowStroyActionBox.NowIndex);
+                    return;
+                }
+                break;
+            case "benginflag":
+                SetActionState(ChatAction.NOWSTATE.DONE, index);
+                if (FlagList.Contains(action.Parameter[0]))
+                {
+                    SetActionIndex(index + 1);
+                    DoingAction(NowStroyActionBox.NowIndex);
+                    return;
+                }
+                else
+                {
+                    //int checkindex = index + 1;
+                    for (int checkindex = index + 1; checkindex < NowStroyActionBox.ActionList.Count; checkindex++)
+                    {
+                        SetActionIndex(checkindex);
+                        SetActionState(ChatAction.NOWSTATE.DONE, checkindex);
+                        ChatAction.StoryAction checkaction = (ChatAction.StoryAction)NowStroyActionBox.ActionList[checkindex];
+                        if (checkaction.Command.CompareTo("endflag") == 0)
+                        {
+                            SetActionIndex(checkindex + 1);
+                            DoingAction(NowStroyActionBox.NowIndex);
+                            return;
+                        }
+                    }
+                }
+                break;
+            case "endflag":
+                SetActionState(ChatAction.NOWSTATE.DONE, index);
+                SetActionIndex(index + 1);
+                DoingAction(NowStroyActionBox.NowIndex);
                 break;
             default:
                 Debug.Log("Don't have Action: <color=red>" + action.Command + "</color> in <color=green>" + storyName + ".txt</color>!");
@@ -1051,8 +1113,17 @@ public class ChatSystemTool : MonoBehaviour {
         }
     }
 
+    void SetIsSelection(bool boolen)
+    {
+        IsSelection = boolen;
+    }
+
     void ClickToDoing(GameObject obj)
     {
+        //如果是对话状态，则不响应点击事件
+        if (IsSelection)
+            return;
+
         //如果完成所有动作
         if (NowStroyActionBox.NowIndex >= NowStroyActionBox.ActionList.Count)
         {
@@ -1579,6 +1650,33 @@ public class ChatSystemTool : MonoBehaviour {
                     DoingAction(NowStroyActionBox.NowIndex);
                 });
         });
+    }
+
+    //更改选项对话框
+    void SetSelectionWindow(ChatAction.StoryAction action,RectTransform rect)
+    {
+        rect.name = action.Parameter[0];
+        Sprite[] s = GetWindowsSprit(action.CharacterID);
+        rect.GetComponent<Image>().sprite = s[0];
+        rect.Find("OutBoard").GetComponent<Image>().sprite = s[1];
+        rect.Find("Text").GetComponent<Text>().text = action.Parameter[1];
+        EventTriggerListener.Get(rect).onClick = ClickSelection;
+    }
+
+    //更改选项对话框
+    void ClickSelection(GameObject go)
+    {
+        Debug.Log("添加flag：" + go.name);
+        if(!FlagList.Contains(go.name))
+            FlagList.Add(go.name);
+
+        SelectionLayer.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        SelectionLayer.GetComponent<ChatSelectionList>().ClearSelection(go.name,() => 
+        {
+            SetIsSelection(false);
+            ClickToDoing(go);
+        }
+        );
     }
 
     void MoveLoopAction(ChatAction.StoryAction action,Vector3 lastmove,Vector3 movevector, RectTransform character,int index)
