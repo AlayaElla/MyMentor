@@ -86,6 +86,26 @@ public class ElementsMenu : Editor
         }
     }
 
+        [MenuItem("关卡工具/创建/创建故事工具 &5")]
+    [MenuItem("GameObject/关卡工具/故事工具", priority = 0)]
+    private static void StoryElementOption()
+    {
+        Transform[] transforms = Selection.transforms;
+        //将选中的对象的postion保存在字典中
+        foreach (Transform t in transforms)
+        {
+            GameObject obj = new GameObject();
+            Image img = obj.AddComponent<Image>();
+            obj.AddComponent<StoryElement>();
+            obj.name = "StoryElement";
+            obj.transform.SetParent(t);
+
+            img.color = new Color((float)139 / 255, (float)255 / 255, (float)255 / 255);
+            SetSize(obj);
+            SetPos(obj);
+        }
+    }
+
     [MenuItem("关卡工具/添加/添加点击工具 #&1")]
     private static void AttachClickElementOption()
     {
@@ -131,6 +151,18 @@ public class ElementsMenu : Editor
         {
             if (t.GetComponent<ItemElement>() == null)
                 t.gameObject.AddComponent<ItemElement>();
+        }
+    }
+
+    [MenuItem("关卡工具/添加/添加道具工具 #&5")]
+    private static void AttachStoryElementOption()
+    {
+        Transform[] transforms = Selection.transforms;
+        //将选中的对象的postion保存在字典中
+        foreach (Transform t in transforms)
+        {
+            if (t.GetComponent<StoryElement>() == null)
+                t.gameObject.AddComponent<StoryElement>();
         }
     }
 

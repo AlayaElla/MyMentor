@@ -21,6 +21,7 @@ public class LevelManager : MonoBehaviour {
 
     public GameObject CompleteBoard;
     public GameObject FailBoard;
+    public string NextLevel;
     private RectTransform BagUI;
 
     private void Awake()
@@ -44,8 +45,6 @@ public class LevelManager : MonoBehaviour {
         NowState = 1;
         BagUI = transform.Find("/GameCanvas/UIlayer/bagUI") as RectTransform;
 
-        if (!int.TryParse(SceneManager.GetActiveScene().name, out level))
-            Debug.Log("关卡名称错误：" + SceneManager.GetActiveScene().name);
         Debug.LogFormat("初始化关卡<color=green> {0} </color>成功！", level);  
     }
 
