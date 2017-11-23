@@ -1,0 +1,24 @@
+//角色名<id:角色ID;image:立绘>
+[Character]
+npc1<name:路人甲;image:npc1;windows:board8;voice:voice1>
+npc2<name:路人乙;image:npc2;windows:board8;voice:voice2>
+npc3<name:路人丙;image:npc1;windows:board8;voice:voice2>
+
+[Background]
+scene 01_hou01,scene 01_hou02,scene 01_qian
+
+[Sound]
+
+
+//对话列表
+[ChatList]
+<setbg scene 01_hou01,0.01,auto>
+<show 0.2,0,0.1,0,left,1,npc1,notloop,auto>
+{npc1:1}草泥马！！！！
+<setbg scene 01_hou02,0.1,auto>
+<show 0.2,0.5,0.01,0,left,1,npc2,notloop,auto>
+<scale 0.2,0.2,0.01,linear,npc2,notloop,auto>
+<scale 1,1,1,linear,npc2,notloop,auto>
+<scale 1,1,1,linear,npc2,notloop,sametime>
+<move 0.5,0.5,1,linear,npc2,notloop,auto>
+{npc2:1}大草泥马！！！！
