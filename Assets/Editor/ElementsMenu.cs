@@ -86,7 +86,7 @@ public class ElementsMenu : Editor
         }
     }
 
-        [MenuItem("关卡工具/创建/创建故事工具 &5")]
+    [MenuItem("关卡工具/创建/创建故事工具 &5")]
     [MenuItem("GameObject/关卡工具/故事工具", priority = 0)]
     private static void StoryElementOption()
     {
@@ -98,6 +98,26 @@ public class ElementsMenu : Editor
             Image img = obj.AddComponent<Image>();
             obj.AddComponent<StoryElement>();
             obj.name = "StoryElement";
+            obj.transform.SetParent(t);
+
+            img.color = new Color((float)139 / 255, (float)255 / 255, (float)255 / 255);
+            SetSize(obj);
+            SetPos(obj);
+        }
+    }
+
+    [MenuItem("关卡工具/创建/创建字幕工具 &6")]
+    [MenuItem("GameObject/关卡工具/字幕工具", priority = 0)]
+    private static void SimpleStoryElementOption()
+    {
+        Transform[] transforms = Selection.transforms;
+        //将选中的对象的postion保存在字典中
+        foreach (Transform t in transforms)
+        {
+            GameObject obj = new GameObject();
+            Image img = obj.AddComponent<Image>();
+            obj.AddComponent<SimpleStoryElement>();
+            obj.name = "SimpleStoryElement";
             obj.transform.SetParent(t);
 
             img.color = new Color((float)139 / 255, (float)255 / 255, (float)255 / 255);
@@ -154,7 +174,7 @@ public class ElementsMenu : Editor
         }
     }
 
-    [MenuItem("关卡工具/添加/添加道具工具 #&5")]
+    [MenuItem("关卡工具/添加/添加故事工具 #&5")]
     private static void AttachStoryElementOption()
     {
         Transform[] transforms = Selection.transforms;
@@ -163,6 +183,18 @@ public class ElementsMenu : Editor
         {
             if (t.GetComponent<StoryElement>() == null)
                 t.gameObject.AddComponent<StoryElement>();
+        }
+    }
+
+    [MenuItem("关卡工具/添加/添加字幕工具 #&6")]
+    private static void AttachSimpleStoryElementOption()
+    {
+        Transform[] transforms = Selection.transforms;
+        //将选中的对象的postion保存在字典中
+        foreach (Transform t in transforms)
+        {
+            if (t.GetComponent<SimpleStoryElement>() == null)
+                t.gameObject.AddComponent<SimpleStoryElement>();
         }
     }
 
