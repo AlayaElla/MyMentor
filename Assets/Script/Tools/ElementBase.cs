@@ -5,11 +5,15 @@ using UnityEngine;
 public class ElementBase : MonoBehaviour {
 
     LevelManager levelManager;
+    public int jumpnum = 0;
+    public string sceneName = "";
     [System.Serializable]
     public enum StateAction
     {
-        None,
+        None = 0,
         Next,
+        Jump,
+        ChangeScene,
         Complete,
         Fail
     }
@@ -35,11 +39,19 @@ public class ElementBase : MonoBehaviour {
     }
 
     //确定是否下一步
-    public void CheckAction(StateAction action)
+    public void CheckAction(StateAction action,int jump)
     {
         if (action == StateAction.Next)
         {
             levelManager.AddNowState();
+        }
+        else if (action == StateAction.Jump)
+        {
+            levelManager.JumpState(jump);
+        }
+        else if (action == StateAction.ChangeScene)
+        {
+            levelManager.ChangeScene(sceneName);
         }
         else if (action == StateAction.Complete)
         {

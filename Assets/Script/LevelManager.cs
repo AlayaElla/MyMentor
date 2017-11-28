@@ -18,6 +18,7 @@ public class LevelManager : MonoBehaviour {
     LevelStateType LevelState = LevelStateType.Common;
 
     ArrayList StoryElements = new ArrayList();    //故事管理器
+    ArrayList SimpleStoryElements = new ArrayList();    //故事管理器
 
     public GameObject CompleteBoard;
     public GameObject FailBoard;
@@ -31,7 +32,7 @@ public class LevelManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        CheckStoryElement();
+        CheckElementsList();
     }
 	
 	// Update is called once per frame
@@ -57,8 +58,21 @@ public class LevelManager : MonoBehaviour {
     {
         Debug.Log("当前状态: " + (NowState + 1));
         NowState++;
-        CheckStoryElement();
+        CheckElementsList();
         return NowState;
+    }
+
+    public int JumpState(int jump)
+    {
+        Debug.Log("当前状态: " + jump);
+        NowState = jump;
+        CheckElementsList();
+        return NowState;
+    }
+
+    public void ChangeScene(string scene)
+    {
+        GameManager.NextLevel(gameObject, scene);
     }
 
     public void CompleteLevel()
@@ -128,16 +142,58 @@ public class LevelManager : MonoBehaviour {
         }
     }
 
-    //检查故事管理器
-    void CheckStoryElement()
+    //添加故事管理器
+    public void AddSompleStoryElement(SimpleStoryElement element)
     {
+        if (!SimpleStoryElements.Contains(element))
+        {
+            SimpleStoryElements.Add(element);
+            Debug.Log("已添加故事管理器。 " + element.transform);
+        }
+        else
+        {
+            Debug.Log("已经包含了这个故事管理器！ " + element.transform);
+        }
+    }
+
+    //检查故事管理器
+    bool CheckStoryElement()
+    {
+        bool ishit = false;
         foreach (StoryElement element in StoryElements)
         {
-            bool ishit = element.CheckDoList();
+            ishit = element.CheckDoList();
 
             if (ishit)
                 break;
         }
+        return ishit;
+    }
+
+    //检查字幕管理器
+    bool CheckSimpleStoryElement()
+    {
+        bool ishit = false;
+        foreach (SimpleStoryElement element in SimpleStoryElements)
+        {
+            ishit = element.CheckDoList();
+
+            if (ishit)
+                break;
+        }
+        return ishit;
+    }
+
+    //检查故事和字幕的方法
+    void CheckElementsList()
+    {
+        if (!CheckStoryElement())
+            CheckSimpleStoryElement();
+        else
+        {
+            Debug.Log("触发故事工具，因此跳过检查字幕工具！");
+        }
+
     }
 
     public LevelStateType GetLevelState()

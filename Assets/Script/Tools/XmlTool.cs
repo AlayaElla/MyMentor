@@ -31,6 +31,13 @@ public class XmlTool
                 _chatconfig.Languege = config.GetAttribute("Languege");
             if (config.GetAttribute("Speed") != "")
                 _chatconfig.speed = float.Parse(config.GetAttribute("Speed"));
+            if (config.GetAttribute("ShowNameBoard") != "")
+            {
+                if (config.GetAttribute("ShowNameBoard").CompareTo("true") == 0)
+                    _chatconfig.showname = true;
+                else
+                    _chatconfig.showname = false;
+            }      
             //添加进itemList中
             ChatConfig.Add(_chatconfig);
         }

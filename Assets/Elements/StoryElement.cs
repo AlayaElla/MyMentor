@@ -49,7 +49,7 @@ public class StoryElement : ElementBase
             manager.StartStory(_do.Story, () =>
             {
                 GetLevelManager().SetLevelState(LevelManager.LevelStateType.Common);
-                CheckAction(_do.NextDo);
+                CheckAction(_do.NextDo, jumpnum);
             });
             return true;
         }

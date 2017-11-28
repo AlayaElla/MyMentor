@@ -11,6 +11,7 @@ public class ChatSystemTool : MonoBehaviour {
     {
         public string Languege;
         public float speed;
+        public bool showname;
     }
     public struct ChatActionBox
     {
@@ -158,7 +159,7 @@ public class ChatSystemTool : MonoBehaviour {
         CharacterLayer = StoryBoardLayer.Find("Character").GetComponent<RectTransform>();
         TextBoardLayer.WordsBacklayer = StoryBoardLayer.Find("TextBoard").GetComponent<RectTransform>();
         TextBoardLayer.WordsOutLayer = StoryBoardLayer.Find("TextBoard/OutBoard").GetComponent<RectTransform>();
-        TextBoardLayer.WordsText = StoryBoardLayer.Find("TextBoard/Text").GetComponent<Text>();
+        TextBoardLayer.WordsText = StoryBoardLayer.Find("TextBoard/TextMask/Text").GetComponent<Text>();
 
         TextBoardLayer.NameBackLayer = StoryBoardLayer.Find("TextBoard/NameBoard").GetComponent<RectTransform>();
         TextBoardLayer.NameOutLayer = StoryBoardLayer.Find("TextBoard/NameBoard/OutBoard").GetComponent<RectTransform>();
@@ -196,6 +197,9 @@ public class ChatSystemTool : MonoBehaviour {
 
         if (AudioManager == null)
             AudioManager = transform.GetComponent<AudioSource>();
+
+        if (NowConfig.showname == false)
+            TextBoardLayer.NameBackLayer.gameObject.SetActive(false);
     }
 
     //关闭故事面板
@@ -916,8 +920,13 @@ public class ChatSystemTool : MonoBehaviour {
                 SetActionState(ChatAction.NOWSTATE.DOING, index);
 
                 //对话最开始
-                if ((preaction.Command == "talk" && preaction.Parameter[3] == "endpage")||(preaction.Command != "talk"))
+                if ((preaction.Command == "talk" && preaction.Parameter[3] == "endpage" && TextBoardLayer.WordsText.text != "") ||(preaction.Command != "talk"))
                 {
+                    GameObject hideText = Instantiate(TextBoardLayer.WordsText.gameObject, TextBoardLayer.WordsText.transform.parent);
+                    LeanTween.moveLocalY(hideText, 200, 0.5f).setOnComplete(()=>
+                    {
+                        Destroy(hideText);
+                    });
                     TextBoardLayer.WordsText.text = "";
                 }
 
@@ -1635,11 +1644,10 @@ public class ChatSystemTool : MonoBehaviour {
             Sprite[] s = GetWindowsSprit(action.CharacterID);
             TextBoardLayer.WordsBacklayer.GetComponent<Image>().sprite = s[0];
             TextBoardLayer.WordsOutLayer.GetComponent<Image>().sprite = s[1];
+            TextBoardLayer.WordsText.text = "";
 
             TextBoardLayer.NameBackLayer.GetComponent<Image>().sprite = s[0];
             TextBoardLayer.NameOutLayer.GetComponent<Image>().sprite = s[1];
-
-            TextBoardLayer.WordsText.text = "";
             TextBoardLayer.NameText.text = NowStroyActionBox.CharacterList[action.CharacterID].Name;
 
             RectTransform rt = GetCharacterRectTransform(action.CharacterID);

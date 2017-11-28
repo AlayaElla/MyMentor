@@ -1,21 +1,22 @@
 //角色名<id:角色ID;image:立绘>
 [Character]
-npc1<name:他喵的坑;image:lili;windows:board1;voice:voice1>
-npc2<name:他喵的真坑;image:maria;windows:board2;voice:voice2>
+npc1<name:他喵的坑;image:lili;windows:none;voice:voice1>
+npc2<name:他喵的坑;image:maria;windows:none;voice:voice2>
 
 [Background]
 
 
 [Sound]
-bgm1,bgm2
+
 
 //对话列表
 [ChatList]
-{npc1:idle}第一句话，测试对话！
-{npc1:idle}第一句话，测试对话！
-{npc1:idle}第一句话，测试对话！
-{npc1:idle}第一句话，测试对话！
-{npc1:idle}第一句话，测试对话！
+{npc1:idle}第1句话，测试对话！
+{npc1:idle}第2句话，测试对话！
+{npc1:idle}第3句话，测试对话！
+{npc1:idle}第4句话，测试对话！
+{npc2:idle}第5句话，测试对话！
+{npc2:idle}第6句话，测试对话！
 //<changescene storyTest>
 <selection npc1,flag1,第1句话，测试选项>
 <selection npc1,flag2,第2句话，测试选项>

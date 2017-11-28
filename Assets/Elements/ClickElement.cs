@@ -69,12 +69,12 @@ public class ClickElement : ElementBase
             TimeTool.SetWaitTime(time, gameObject, () =>
             {
                 GetLevelManager().SetLevelState(LevelManager.LevelStateType.Common);
-                CheckAction(_do.NextDo);
+                CheckAction(_do.NextDo,jumpnum);
             });
         }
         else
         {
-            CheckAction(_do.NextDo);
+            CheckAction(_do.NextDo, jumpnum);
         }
     }
 
