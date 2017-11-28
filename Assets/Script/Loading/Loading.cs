@@ -148,7 +148,7 @@ public class Loading : MonoBehaviour {
 
             //读取窗口文件
             tempSprite = Resources.LoadAll<Sprite>("Texture/story/board/" + character.Value.Windows);
-            if (tempSprite == null) Debug.LogError("Can't find " + "Texture/story/board/" + character.Value.Windows);
+            if (tempSprite == null || tempSprite.Length == 0) Debug.LogError("Can't find " + "Texture/story/board/" + character.Value.Windows);
             storyResPack.NowResourcesBox.windowsSprites.Add(character.Key, tempSprite);
 
             //读取声音
@@ -245,7 +245,7 @@ public class Loading : MonoBehaviour {
 
             //读取窗口文件
             tempSprite = Resources.LoadAll<Sprite>("Texture/story/board/" + character.Value.Windows);
-            if (tempSprite == null) Debug.LogError("Can't find " + "Texture/story/board/" + character.Value.Windows);
+            if (tempSprite == null|| tempSprite.Length == 0) Debug.LogError("Can't find " + "Texture/story/board/" + character.Value.Windows);
             storyResPack.NowResourcesBox.windowsSprites.Add(character.Key, tempSprite);
 
             //读取声音

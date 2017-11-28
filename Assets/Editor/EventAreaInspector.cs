@@ -62,6 +62,16 @@ public class EventAreaInspector : Editor{
             EditorGUILayout.PropertyField(statedo.FindPropertyRelative("DragName"), pointContent);
             GUILayout.Label("  执行命令");
             EditorGUILayout.PropertyField(statedo.FindPropertyRelative("NextDo"), pointContent);
+            if (statedo.FindPropertyRelative("NextDo").enumValueIndex == 2)
+            {
+                EditorGUILayout.PropertyField(element.FindProperty("jumpnum"), pointContent, GUILayout.Width(50));
+                EditorGUILayout.Space();
+            }
+            else if (statedo.FindPropertyRelative("NextDo").enumValueIndex == 3)
+            {
+                EditorGUILayout.PropertyField(element.FindProperty("sceneName"), pointContent, GUILayout.Width(50));
+                EditorGUILayout.Space();
+            }
 
             if (GUILayout.Button(deleteContent, EditorStyles.miniButton, buttonWidth))
             {

@@ -54,7 +54,7 @@ namespace qtools.qhierarchy.pcomponent
             List<Component> newcomonent = new List<Component>();
             foreach (Component component in components)
             {
-                if (component is ClickElement || component is DragElement || component is EventArea || component is ItemElement || component is StoryElement || component is Animator || component is Transform)
+                if (component is ClickElement || component is DragElement || component is EventArea || component is ItemElement || component is StoryElement || component is SimpleStoryElement || component is Animator || component is Transform)
                     newcomonent.Add(component);
             }
             components = new Component[newcomonent.Count];
