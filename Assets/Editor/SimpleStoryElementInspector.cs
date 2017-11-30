@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -11,6 +11,7 @@ public class SimpleStoryElementInspector : Editor
     //ClickElement element;
     private SerializedObject element;
     private SerializedProperty dolist;
+    private Transform transform;
 
     private bool[] showActionList;
 
@@ -20,6 +21,7 @@ public class SimpleStoryElementInspector : Editor
         element = new SerializedObject(target);
         dolist = element.FindProperty("DoList");
         SimpleStoryElement _target = (SimpleStoryElement)target;
+        transform = _target.transform;
         showActionList = new bool[dolist.arraySize];
     }
 
@@ -65,8 +67,21 @@ public class SimpleStoryElementInspector : Editor
             EditorGUILayout.EndHorizontal();
 
             //状态列表内的字幕列表
+            //导入文本
+            TextAsset ta = EditorGUILayout.ObjectField("  导入文本", null, typeof(TextAsset), false) as TextAsset;
             SerializedProperty actinlist = statedo.FindPropertyRelative("talks");
             showActionList[i] = EditorGUILayout.Foldout(showActionList[i], "  字幕列表: " + actinlist.arraySize + "个", true);
+
+            if (ta != null)
+            {
+                SimpleChatLoader loader = new SimpleChatLoader();
+                SimpleChatLoader.ChatActionBox box = loader.LoadStory(ta.text);
+
+                SetActionList(box, actinlist);
+
+                loader = null;
+                return;
+            }
             if (showActionList[i])
             {
                 for (int j = 0; j < actinlist.arraySize; j++)
@@ -122,5 +137,36 @@ public class SimpleStoryElementInspector : Editor
         {
             showActionList[i] = oldlist[i];
         }
+    }
+
+    void SetActionList(SimpleChatLoader.ChatActionBox box, SerializedProperty actinlist)
+    {
+        Dictionary<string, Transform> Characters = new Dictionary<string, Transform>();
+        foreach (SimpleChatLoader.StoryCharacter stc in box.CharacterList)
+        {
+            Transform t = transform.parent.Find(stc.Root);
+            if (t == null && transform.parent.name.CompareTo(stc.Root) == 0)
+                t = transform.parent;
+            if (t == null)
+            {
+                EditorGUILayout.HelpBox("找不到 " + stc.Root + " ,请检查动画名称是否和物件对应!", MessageType.Error);
+            }
+
+            Characters.Add(stc.CharacterID, t);
+        }
+
+        actinlist.ClearArray();
+        actinlist.arraySize = box.ActionList.Count;
+        for (int j = 0; j < actinlist.arraySize; j++)
+        {
+            SerializedProperty talks = actinlist.GetArrayElementAtIndex(j);
+
+            string[] text = (string[])box.ActionList[j];
+            talks.FindPropertyRelative("character").objectReferenceValue = Characters[text[0]];
+            talks.FindPropertyRelative("talkstring").stringValue = text[1];
+        }
+
+        Debug.Log("导入完成!");
+        SaveProperties();
     }
 }
