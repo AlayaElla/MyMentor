@@ -1,0 +1,15 @@
+//角色名<id:角色ID;image:立绘>
+[Character]
+npc1<root:StoryElement (1)>
+npc2<root:StoryElement>
+
+//对话列表
+[ChatList]
+npc1:说话说话时
+npc1:说话说话时
+npc1:222222222
+npc2:说话说话时
+npc2:1111111111111111111
+npc2:说话说话时
+npc2:444444444444444444444
+npc1:5555555555555555555555555555
